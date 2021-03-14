@@ -7,7 +7,7 @@ from pymongo import MongoClient
 from flask import Flask, request
 from flask_restful import Api, Resource
 
-from audiofiles import Audio, Song, Podcast, Audiobook
+from audiofiles import Song, Podcast, Audiobook
 from audiofiles import MetadataValueError, MetadataGenerationError
 
 cluster = MongoClient(os.environ.get('AUDIOSERVERDB'))
@@ -47,13 +47,13 @@ class Create(Resource):
         except MetadataGenerationError as e:
             return f"Internal Server Error - metadata generation - {e}", 500
         except Exception as e:
-            return f"Internal Server Error - {e}"
+            return f"Internal Server Error - {e}", 500
 
         try:
             collection.insert_one(file.metadata)
 
         except Exception as e:
-            return f"Internal Server Error - db write failed - {e}"
+            return f"Internal Server Error - db write failed - {e}", 500
 
         return f"Create Successful. Created a/an {audiotype.capitalize()} file with ID {file.ID}", 200
 
@@ -72,18 +72,69 @@ class Delete(Resource):
             search_result = collection.find_one_and_delete(search)
 
         except Exception as e:
-            return f"Internal Server Error - db query failed - {e}"
+            return f"Internal Server Error - db query failed - {e}", 500
 
         if search_result:
             return f"Delete Successful. Deleted a/an {audiotype.capitalize()} file with ID {search_result['_id']}", 200
         else:
-            return f"Delete Successful. No document deleted"
+            return f"Delete Successful. No document deleted", 200
 
 
 # noinspection PyMethodMayBeStatic
 class Update(Resource):
-    """docstring"""
-    pass
+    """ Resource for updating audio files on the server """
+
+    def post(self, audiotype: str, audioID: int):
+        """ RESTful POST Method. """
+        if audiotype.lower() not in ['song', 'podcast', 'audiobook']:
+            return f"Bad Request - '{audiotype}' is not supported ", 400
+
+        data = request.get_json()
+
+        try:
+            search = {"type": audiotype.capitalize(), "_id": audioID}
+            search_result = collection.find_one(search)
+
+        except Exception as e:
+            return f"Internal Server Error - db query failed - {e}", 500
+
+        if not search_result:
+            return f"Update Successful. No document updated", 200
+
+        try:
+            audiotype: str = data['audioFileType']
+            audiometadata: dict = data['audioFileMetadata']
+
+        except KeyError as e:
+            return f"Bad Request - {e} is required", 400
+
+        if type(audiometadata) is not dict:
+            return "Bad Request - 'audioFileMetadata' must contain a dict", 400
+
+        try:
+            if audiotype.lower() == "song":
+                file = Song(audiometadata)
+            elif audiotype.lower() == "podcast":
+                file = Podcast(audiometadata)
+            elif audiotype.lower() == "audiobook":
+                file = Audiobook(audiometadata)
+            else:
+                return f"Bad Request - '{audiotype}' is not supported ", 400
+
+        except MetadataValueError as e:
+            return f"Bad Request - {e}", 400
+        except MetadataGenerationError as e:
+            return f"Internal Server Error - metadata generation - {e}", 500
+        except Exception as e:
+            return f"Internal Server Error - {e}", 500
+
+        try:
+            collection.update_one({"_id": audioID}, {"$set": file.metadata})
+
+        except Exception as e:
+            return f"Internal Server Error - db write failed - {e}", 500
+
+        return f"Update Successful. Updated a/an {audiotype.capitalize()} file with ID {file.ID}", 200
 
 
 # noinspection PyMethodMayBeStatic
@@ -118,6 +169,7 @@ api = Api(app)
 
 api.add_resource(Create, '/create')
 api.add_resource(Delete, '/delete/<string:audiotype>/<int:audioID>')
+api.add_resource(Update, '/update/<string:audiotype>/<int:audioID>')
 api.add_resource(Get, '/get/<string:audiotype>', '/get/<string:audiotype>/<int:audioID>')
 
 if __name__ == '__main__':
