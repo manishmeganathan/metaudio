@@ -93,13 +93,14 @@ class Audio:
                 raise MetadataValueError(f"metadata value is invalid for 'uploadtime'")
 
         # Collect and validate 'ID'. Generate if not found.
-        if 'ID' in self.metadata:
-            self.ID = self.metadata['ID']
+        if '_id' in self.metadata:
+            self.ID = self.metadata['_id']
 
         else:
 
             try:
                 self.ID = abs(hash(f"{self.name}-{self.duration}-{self.uploadtime}"))
+                self.metadata['_id'] = self.ID
 
             except Exception as e:
                 raise MetadataGenerationError(f"metadata generation failed for 'id'")
