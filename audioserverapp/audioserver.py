@@ -7,7 +7,7 @@ from pymongo import MongoClient
 from flask import Flask, request
 from flask_restful import Api, Resource
 
-from audiofiles import Song, Podcast, Audiobook
+from audiofiles import Audio, Song, Podcast, Audiobook
 from audiofiles import MetadataValueError, MetadataGenerationError
 
 cluster = MongoClient(os.environ.get('AUDIOSERVERDB'))
@@ -60,8 +60,24 @@ class Create(Resource):
 
 # noinspection PyMethodMayBeStatic
 class Delete(Resource):
-    """docstring"""
-    pass
+    """ Resource for deleting audio files from the server """
+
+    def get(self, audiotype: str, audioID: int):
+        """ RESTful GET Method. """
+        if audiotype.lower() not in ['song', 'podcast', 'audiobook']:
+            return f"Bad Request - '{audiotype}' is not supported ", 400
+
+        try:
+            search = {"type": audiotype.capitalize(), "_id": audioID}
+            search_result = collection.find_one_and_delete(search)
+
+        except Exception as e:
+            return f"Internal Server Error - db query failed - {e}"
+
+        if search_result:
+            return f"Delete Successful. Deleted a/an {audiotype.capitalize()} file with ID {search_result['_id']}", 200
+        else:
+            return f"Delete Successful. No document deleted"
 
 
 # noinspection PyMethodMayBeStatic
@@ -80,16 +96,19 @@ class Get(Resource):
             return f"Bad Request - '{audiotype}' is not supported ", 400
 
         try:
-            search = {"type": audiotype.capitalize()}
-            search.update(({"_id": audioID})) if audioID else None
-            search_result = collection.find(search)
-            results = [res for res in search_result]
+            if audioID:
+                search = {"type": audiotype.capitalize(), "_id": audioID}
+                result = collection.find_one(search)
+            else:
+                search = {"type": audiotype.capitalize()}
+                search_result = collection.find(search)
+                result = [res for res in search_result]
 
         except Exception as e:
-            return f"Internal Server Error - {e}", 500
+            return f"Internal Server Error - db query failed - {e}", 500
 
-        if results:
-            return f"Search Successful. Found {len(results)} result(s). Results: {results}", 200
+        if result:
+            return f"Search Successful. Found {len(result)} result(s). Results: {result}", 200
         else:
             return f"Search Successful. Found 0 result(s)", 200
 
@@ -98,6 +117,7 @@ app = Flask(__name__)
 api = Api(app)
 
 api.add_resource(Create, '/create')
+api.add_resource(Delete, '/delete/<string:audiotype>/<int:audioID>')
 api.add_resource(Get, '/get/<string:audiotype>', '/get/<string:audiotype>/<int:audioID>')
 
 if __name__ == '__main__':
