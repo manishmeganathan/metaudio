@@ -1,6 +1,7 @@
 # AudioServer
 ## A Flask-RESTful App Server that serves audio file metadata from a MongoDB server.
- 
+![Actions Workflow](https://github.com/manishmeganathan/AudioServer/workflows/AudioServerTests/badge.svg)
+
 **Platform: Google Cloud Platform Cloud Run**  
 **Language: Python 3.8**
 
@@ -14,5 +15,6 @@ The directory **audioserverapp** contains a flask server script and a Dockerfile
 - PyMongo
 - Flask
 - Flask-RESTful
-
-
+- gUnicorn
+- dnspython
+- pyTest
