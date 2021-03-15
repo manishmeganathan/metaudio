@@ -120,7 +120,7 @@ def test_Song_extra_uploadtime():
     assert str(error.value) == "metadata value is invalid for 'uploadtime' - not ISO8601"
 
 
-def test_Audio_extra_ID():
+def test_Song_extra_ID():
     """
     **GIVEN** a metadata dictionary for Song that has an 'ID' parameter\n
     **WHEN** a new Song is created\n
@@ -147,7 +147,7 @@ def test_Audio_extra_ID():
     assert str(error.value) == "metadata value is invalid for '_id' - not an int"
 
 
-def test_Audio_extra_type():
+def test_Song_extra_type():
     """
     **GIVEN** a metadata dictionary for Song that has an 'type' parameter\n
     **WHEN** a new Song is created\n
@@ -171,7 +171,7 @@ def test_Audio_extra_type():
     assert song.metadata['type'] == "Song"
 
     # Test Case 2 - invalid 'Album' type - Song() will overwrite
-    Song(metadata={"name": "sample-song", "duration": 45, "type": "Album"})
+    song = Song(metadata={"name": "sample-song", "duration": 45, "type": "Album"})
 
     assert isinstance(song.ID, int)
     assert isinstance(song.name, str)
@@ -187,7 +187,7 @@ def test_Audio_extra_type():
     assert song.metadata['type'] == "Song"
 
     # Test Case 3 - invalid value and type 3423  - Song() will overwrite
-    Song(metadata={"name": "sample-song", "duration": 45, "type": 342})
+    song = Song(metadata={"name": "sample-song", "duration": 45, "type": 342})
 
     assert isinstance(song.ID, int)
     assert isinstance(song.name, str)
@@ -201,4 +201,3 @@ def test_Audio_extra_type():
 
     assert isinstance(song.metadata['type'], str)
     assert song.metadata['type'] == "Song"
-

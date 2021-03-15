@@ -247,18 +247,12 @@ class Get(Resource):
             response = generate500response(f"database query failed - {error}")
             return response, 500
 
-        if not result:
-            return {
-                "status": 200,
-                "message": "Get Complete",
-                "result": f"No result(s) found"
-            }, 200
-
         return {
             "status": 200,
             "message": "Get Complete",
             "result": f"{len(result)} result(s) found",
-            "documents": result
+            "documents": result,
+            "matches": len(result)
         }, 200
 
 
