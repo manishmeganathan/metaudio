@@ -1,5 +1,5 @@
 """
-Unit Test Module for the class Audio in the audiofiles package
+Unit Test Module for the class Podcast in the audiofiles package
 Test Framework: pyTest
 """
 import pytest
