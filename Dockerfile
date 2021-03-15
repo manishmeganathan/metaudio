@@ -1,16 +1,16 @@
 # Building custom base image based on Python 3.8
 FROM python:3.8-slim
 
-# Setting an environment variables APPDIR and APPNAME
+# Setting the environment variables
+ENV PORT 8080
 ENV APPDIR /app
 ENV APPNAME audioserver
 
 # Change working directory to APPDIR
 WORKDIR $APPDIR
 
-# Move the package and server script into the APPDIR
-COPY ./audiofiles  $APPDIR/audiofiles
-COPY ./audioserver $APPDIR
+# Move contents into the APPDIR
+COPY . $APPDIR
 
 # Update pip and install dependancies.
 RUN pip install --upgrade pip
