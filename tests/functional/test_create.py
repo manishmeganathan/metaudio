@@ -3,6 +3,7 @@ Functional Test Module for the /get endpoint of the AudioServer
 Test Framework: pyTest
 """
 import json
+import random
 
 
 def test_Create_Song(client):
@@ -13,7 +14,8 @@ def test_Create_Song(client):
     file that has been created, check its values and then delete the file.
     """
     # Create a Song file
-    request = {"audioFileType": "Song", "audioFileMetadata": {"name": "test-song", "duration": 45}}
+    name = f"test-song-{random.randint(100,999)}"
+    request = {"audioFileType": "Song", "audioFileMetadata": {"name": f"{name}", "duration": 45}}
     response = client.post(f"/create", json=request)
 
     assert response.status_code == 200
@@ -40,7 +42,7 @@ def test_Create_Song(client):
 
     assert test_data['documents'][0]['_id'] == data['document']
     assert test_data['documents'][0]['type'] == "Song"
-    assert test_data['documents'][0]['name'] == "test-song"
+    assert test_data['documents'][0]['name'] == name
     assert test_data['documents'][0]['duration'] == 45
 
     # Cleanup - Delete the added test file
@@ -56,8 +58,9 @@ def test_Create_Podcast(client):
     file that has been created, check its values and then delete the file.
     """
     # Create a Podcast file
+    name = f"test-podcast-{random.randint(100, 999)}"
     request = {"audioFileType": "Podcast",
-               "audioFileMetadata": {"name": "test-podcast", "duration": 45,
+               "audioFileMetadata": {"name": f"{name}", "duration": 45,
                                      "host": "host1", "participants": ["cast1"]}}
     response = client.post(f"/create", json=request)
 
@@ -85,7 +88,7 @@ def test_Create_Podcast(client):
 
     assert test_data['documents'][0]['_id'] == data['document']
     assert test_data['documents'][0]['type'] == "Podcast"
-    assert test_data['documents'][0]['name'] == "test-podcast"
+    assert test_data['documents'][0]['name'] == name
     assert test_data['documents'][0]['host'] == "host1"
     assert test_data['documents'][0]['participants'] == ["cast1"]
     assert test_data['documents'][0]['duration'] == 45
@@ -103,8 +106,9 @@ def test_Create_Audiobook(client):
     file that has been created, check its values and then delete the file.
     """
     # Create an Audiobook file
+    name = f"test-book-{random.randint(100, 999)}"
     request = {"audioFileType": "Audiobook",
-               "audioFileMetadata": {"name": "test-book", "duration": 45,
+               "audioFileMetadata": {"name": f"{name}", "duration": 45,
                                      "author": "author1", "narrator": "narrator1"}}
     response = client.post(f"/create", json=request)
 
@@ -132,7 +136,7 @@ def test_Create_Audiobook(client):
 
     assert test_data['documents'][0]['_id'] == data['document']
     assert test_data['documents'][0]['type'] == "Audiobook"
-    assert test_data['documents'][0]['name'] == "test-book"
+    assert test_data['documents'][0]['name'] == name
     assert test_data['documents'][0]['author'] == "author1"
     assert test_data['documents'][0]['narrator'] == "narrator1"
     assert test_data['documents'][0]['duration'] == 45
