@@ -69,10 +69,13 @@ class Create(Resource):
         try:
             audiotype: str = data['audioFileType']
             audiometadata: dict = data['audioFileMetadata']
-            audiotype = audiotype.capitalize()
 
         except KeyError as key:
             response = generate400response(f"{key} is required")
+            return response, 400
+
+        if not isinstance(audiotype, str):
+            response = generate400response("'audioFileType' must be an str")
             return response, 400
 
         if not isinstance(audiometadata, dict):
@@ -80,6 +83,7 @@ class Create(Resource):
             return response, 400
 
         try:
+            audiotype = audiotype.capitalize()
             audiofile = generateAudio(audiotype, audiometadata)
 
             if not audiofile:
