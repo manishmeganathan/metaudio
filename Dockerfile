@@ -6,6 +6,9 @@ ENV PORT 8080
 ENV APPDIR /app
 ENV APPNAME audioserver
 
+# Set the AUDIOSERVERDB env variable
+# ENV AUDIOSERVERDB sample/db/cluster/auth/string
+
 # Change working directory to APPDIR
 WORKDIR $APPDIR
 
