@@ -205,3 +205,25 @@ def test_Delete_POST(client):
 
     assert isinstance(data['message'], str)
     assert data['message'] == f"The method is not allowed for the requested URL."
+
+
+def test_Delete_badURL(client):
+    """
+    **GIVEN** a Flask application configured for testing\n
+    **WHEN** an invalid URL for the delete endpoint is hit with a GET request\n
+    **THEN** check that the response is valid for a 404 response (Not Found)
+    """
+    response = client.get(f"/delete")
+    assert response.status_code == 404
+
+    response = client.get(f"/delete/")
+    assert response.status_code == 404
+
+    response = client.get(f"/delete/234234")
+    assert response.status_code == 404
+
+    response = client.get(f"/delete/song")
+    assert response.status_code == 404
+
+    response = client.get(f"/delete/song/something")
+    assert response.status_code == 404

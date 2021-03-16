@@ -131,3 +131,19 @@ def test_Get_one_POST(client):
 
             assert isinstance(data['message'], str)
             assert data['message'] == f"The method is not allowed for the requested URL."
+
+
+def test_Get_badURL(client):
+    """
+    **GIVEN** a Flask application configured for testing\n
+    **WHEN** an invalid URL for the get endpoint is hit with a GET request\n
+    **THEN** check that the response is valid for a 404 response (Not Found)
+    """
+    response = client.get(f"/get")
+    assert response.status_code == 404
+
+    response = client.get(f"/get/")
+    assert response.status_code == 404
+
+    response = client.post(f"/get/song/something")
+    assert response.status_code == 404

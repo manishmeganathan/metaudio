@@ -280,3 +280,19 @@ def test_Create_GET(client):
 
     assert isinstance(data['message'], str)
     assert data['message'] == f"The method is not allowed for the requested URL."
+
+
+def test_Create_badURL(client):
+    """
+    **GIVEN** a Flask application configured for testing\n
+    **WHEN** an invalid URL for the create endpoint is hit with a POST request\n
+    **THEN** check that the response is valid for a 404 response (Not Found)
+    """
+    response = client.post(f"/create/")
+    assert response.status_code == 404
+
+    response = client.post(f"/create/234234")
+    assert response.status_code == 404
+
+    response = client.post(f"/create/something")
+    assert response.status_code == 404
