@@ -167,12 +167,16 @@ class Update(Resource):
             response = generate400response(f"{key} is required")
             return response, 400
 
-        if param_audiotype.capitalize() != audiotype:
-            response = generate400response("'audioFileType' field must match the endpoint")
+        if not isinstance(param_audiotype, str):
+            response = generate400response("'audioFileType' must be an str")
             return response, 400
 
         if not isinstance(audiometadata, dict):
             response = generate400response("'audioFileMetadata' must be a dict")
+            return response, 400
+
+        if param_audiotype.capitalize() != audiotype:
+            response = generate400response("'audioFileType' field must match the endpoint")
             return response, 400
 
         try:
